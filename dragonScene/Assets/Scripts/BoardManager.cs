@@ -7,34 +7,18 @@ namespace Completed
 {
     public class BoardManager : MonoBehaviour
     {
-        //[Serializable]
-        public class Count
-        {
-            public int minimum;
-            public int maximum;
-            public Count(int min, int max)
-            {
-                minimum = min;
-                maximum = max;
-            }
-        }
-        public static int columns = 25;
-        public static int rows = 25;
-        int simulations = 10;
-        float chanceCellIsOnPath = 0.5f;
-        //public Count treeCount = new Count(5, 20); 
-        //public Count bushCount = new Count(5, 20);
-        //public Count rockCount = new Count(5, 20);
+       
+        public static int columns = 35;
+        public static int rows = 35;
+        int simulations = 5;
+        float chanceCellIsOnPath = 0.45f;
         public GameObject[] floorTiles;
-        public GameObject[] treeTiles;
-        public GameObject[] bushTiles;
-        public GameObject[] rockTiles;
+        public GameObject[] obstacleTiles;
 
         private Transform boardHolder;
         private List<Vector3> gridPositions = new List<Vector3>();
         private List<bool> liveCells = new List<bool>();
         private bool [,] gridPath = new bool[columns, rows];
-
 
         void InitializeGrid()
         {
@@ -95,8 +79,8 @@ namespace Completed
                     {
                         //do nothing
                     }
-                    // check if neighboring cell is off the map
-                    else if(x_neighbor < 0 || y_neighbor < 0 || x_neighbor >= rows || y_neighbor >= columns){
+                    // check if neighboring cell is off the map or at edge
+                    else if(x_neighbor < 1 || y_neighbor < 1 || x_neighbor >= columns - 1 || y_neighbor >= rows - 1){
                         liveNeighbors = liveNeighbors + 1;
                     }
                     //check if neighbor is alive
@@ -114,15 +98,27 @@ namespace Completed
         bool [,] populateNewGrid(bool [,] newGrid)
         {
             //for each column
-            for(int x = 0; x < columns; x++)
+            for(int x = 1; x < columns; x++)
             {
                 //and each row
-                for(int y = 0; y < rows; y++)
+                for(int y = 1; y < rows; y++)
                 {
                     //count live neighbors
                     int liveNeighbors = CountLiveNeighbors(x, y);
-                    //if less than 2 and cell is alive, kill cell
-                    if (gridPath[x, y]) {
+                    //if cell is alive
+                    if (gridPath[x, y])
+                    {
+                        //if cell has more than 4 live neighbors kill it
+                        if(liveNeighbors > 3)
+                        {
+                            newGrid[x, y] = false;
+                        }
+                        //if cell has less than 4 live neighbors keep it alive
+                        else
+                        {
+                            newGrid[x, y] = true;
+                        }
+                        /*
                         if (liveNeighbors < 2)
                         {
                             newGrid[x, y] = false;
@@ -137,17 +133,21 @@ namespace Completed
                         {
                             newGrid[x, y] = false;
                         }
+                        */
                     }
+                    //if dead
                     else {  
-                        //if cell is dead and it has at least three live neighbors lazarus
-                        if (liveNeighbors == 3)
+                        //if cell is dead and it has less than four live neighbors lazarus
+                        if (liveNeighbors < 3)
                         {
                             newGrid[x, y] = true;
                         }
+                        //if cell is dead and has 4 or more live neighbors keep it dead 
                         else
                         {
                             newGrid[x, y] = false;
                         }
+
                     }
                 }
             }
@@ -156,26 +156,14 @@ namespace Completed
         }
 
 
-        /*
-        bool IsCellOnPath()
-        {
-            float rand = Random.Range(0.0f, 1.0f);
-            if (rand < chanceCellIsOnPath)
-            {
-                return true;
-            }
-            return false;
-        }
-        */
-
 
         void InitializeList()
         {
             GameOfLifeSim();
             gridPositions.Clear();
-            for (int x = 0; x < columns - 1; x++)
+            for (int x = 1; x < columns; x++)
             {
-                for (int y = 0; y < rows - 1; y++)
+                for (int y = 1; y < rows; y++)
                 {
                     gridPositions.Add(new Vector3(x, y, 0f));
                     if (gridPath[x,y] == true)
@@ -194,9 +182,9 @@ namespace Completed
         {
             boardHolder = new GameObject("Board").transform;
 
-            for (int x = 0; x < columns; x++)
+            for (int x = 1; x < columns; x++)
             {
-                for (int y = 0; y < rows; y++)
+                for (int y = 1; y < rows; y++)
                 {
                     GameObject toInstantiate = floorTiles[Random.Range(0, floorTiles.Length)];
                     GameObject instance = Instantiate(toInstantiate, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
@@ -207,15 +195,6 @@ namespace Completed
 
         
 
-        /*
-        Vector3 RandomPosition()
-        {
-            int randomIndex = Random.Range(0, gridPositions.Count);
-            Vector3 randomPosition = gridPositions[randomIndex];
-            gridPositions.RemoveAt(randomIndex);
-            return randomPosition;
-        }
-        */
         void LayoutObject(GameObject[] tileArray)
         {
             for (int x = 0; x < gridPositions.Count; x++)
@@ -229,28 +208,13 @@ namespace Completed
             }
         }
 
-        /*
-        void LayoutObjectAtRandom(GameObject[] tileArray, int minimum, int maximum)
-        {
-            int objectCount = Random.Range(minimum, maximum + 1);
-            for (int i = 0; i < objectCount; i++)
-            {
-                Vector3 randomPosition = RandomPosition();
-                GameObject tileChoice = tileArray[Random.Range(0, tileArray.Length)];
-                Instantiate(tileChoice, randomPosition, Quaternion.identity);
-            }
-
-        }
-        */
 
         public void SetupScene(int level)
         {
             BoardSetup();
             InitializeList();
-            LayoutObject(rockTiles);
-            //LayoutObjectAtRandom(treeTiles, treeCount.minimum, treeCount.maximum);
-            //LayoutObjectAtRandom(bushTiles, bushCount.minimum, bushCount.maximum);
-            //LayoutObjectAtRandom(rockTiles, rockCount.minimum, rockCount.maximum);
+            LayoutObject(obstacleTiles);
+            
 
         }
     }
