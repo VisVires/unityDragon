@@ -8,10 +8,10 @@ namespace Completed
     public class BoardManager : MonoBehaviour
     {
        
-        public static int columns = 35;
-        public static int rows = 35;
-        int simulations = 5;
-        float chanceCellIsOnPath = 0.45f;
+        public static int columns = 50;
+        public static int rows = 50;
+        int simulations = 7;
+        float chanceCellIsOnPath = 0.4f;
         public GameObject[] floorTiles;
         public GameObject[] obstacleTiles;
 
@@ -20,13 +20,17 @@ namespace Completed
         private List<bool> liveCells = new List<bool>();
         private bool [,] gridPath = new bool[columns, rows];
 
+        //initializes game of life grid
         void InitializeGrid()
         {
             for (int x = 0; x < columns; x++)
             {
                 for(int y = 0; y < rows; y++)
                 {
+                    //get random float between 0 and 1
                     float rand = Random.Range(0.0f, 1.0f);
+                    //compare float to chance cell is on path
+                    //if rand is less than chance, set to true
                     if (rand < chanceCellIsOnPath)
                     {
                         gridPath[x, y] = true;
@@ -37,13 +41,17 @@ namespace Completed
                     }
                 }
             }
+            //OutputGridToConsole();
         }
 
+        //create game of life grid
         void GameOfLifeSim()
         {
             InitializeGrid();
+            //run until all simulations are done
             while (simulations > 0)
             {
+                //create second temp grid  
                 bool[,] newGrid = new bool[columns, rows];
                 //populate newGrid
                 newGrid = populateNewGrid(newGrid);
@@ -56,6 +64,8 @@ namespace Completed
                         gridPath[x, y] = newGrid[x, y];
                     }
                 }
+                //OutputGridToConsole();
+                //decrement simulations
                 simulations--;
             }
         }
@@ -80,7 +90,7 @@ namespace Completed
                         //do nothing
                     }
                     // check if neighboring cell is off the map or at edge
-                    else if(x_neighbor < 1 || y_neighbor < 1 || x_neighbor >= columns - 1 || y_neighbor >= rows - 1){
+                    else if(x_neighbor < 0 || y_neighbor < 0 || x_neighbor >= columns - 1 || y_neighbor >= rows - 1){
                         liveNeighbors = liveNeighbors + 1;
                     }
                     //check if neighbor is alive
@@ -109,7 +119,7 @@ namespace Completed
                     if (gridPath[x, y])
                     {
                         //if cell has more than 4 live neighbors kill it
-                        if(liveNeighbors > 3)
+                        if(liveNeighbors < 4)
                         {
                             newGrid[x, y] = false;
                         }
@@ -118,27 +128,11 @@ namespace Completed
                         {
                             newGrid[x, y] = true;
                         }
-                        /*
-                        if (liveNeighbors < 2)
-                        {
-                            newGrid[x, y] = false;
-                        }
-                        //if cell alive and live neighbors equal to 2 or 3 keep cell alive
-                        else if (liveNeighbors == 2 || liveNeighbors == 3)
-                        {
-                            newGrid[x, y] = true;
-                        }
-                        //if cell is alive and there are more than 3 live neighbors kill cell
-                        else if (liveNeighbors > 3)
-                        {
-                            newGrid[x, y] = false;
-                        }
-                        */
                     }
                     //if dead
                     else {  
-                        //if cell is dead and it has less than four live neighbors lazarus
-                        if (liveNeighbors < 3)
+                        //if cell is dead and it has less than three live neighbors lazarus
+                        if (liveNeighbors > 3)
                         {
                             newGrid[x, y] = true;
                         }
@@ -155,20 +149,47 @@ namespace Completed
             return newGrid;
         }
 
-
-
-        void InitializeList()
+        /*
+        void OutputGridToConsole()
         {
-            GameOfLifeSim();
-            gridPositions.Clear();
+            int count = 0;
             for (int x = 1; x < columns; x++)
             {
                 for (int y = 1; y < rows; y++)
                 {
+                    if (gridPath[x, y])
+                    {
+                        count = count + 1;
+                        //print(".  ");
+                    }
+                    else
+                    {
+                        //print("X  ");
+                    }
+                }
+                //print("\r\n");
+            }
+            print(count);
+        }
+        */
+
+        //create game board list data structure and list of same size with values set to true or false based on game of life gird
+        void InitializeList()
+        {
+            GameOfLifeSim();
+            gridPositions.Clear();
+            int count = 0;
+            for (int x = 1; x < columns; x++)
+            {
+                for (int y = 1; y < rows; y++)
+                {
+                    //create grid position list of vector3 elements
                     gridPositions.Add(new Vector3(x, y, 0f));
+                    //if gridPath item is true set list value to true
                     if (gridPath[x,y] == true)
                     {
                         liveCells.Add(true);
+                        count = count + 1;
                     }
                     else
                     {
@@ -176,8 +197,10 @@ namespace Completed
                     }
                 }
             }
+            print("Live Count " + count);
         }
 
+        //create floor of game board with random floor tiles
         void BoardSetup()
         {
             boardHolder = new GameObject("Board").transform;
@@ -186,6 +209,7 @@ namespace Completed
             {
                 for (int y = 1; y < rows; y++)
                 {
+                    //set random floor tiles to gameObjects with parent being the board holder
                     GameObject toInstantiate = floorTiles[Random.Range(0, floorTiles.Length)];
                     GameObject instance = Instantiate(toInstantiate, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
                     instance.transform.SetParent(boardHolder);
@@ -194,28 +218,43 @@ namespace Completed
         }
 
         
-
+        //add random object to boardholder as obstacles
         void LayoutObject(GameObject[] tileArray)
         {
+            int count = 0;
+            int liveCount = 0;
+            //for each item in grid positions list
             for (int x = 0; x < gridPositions.Count; x++)
             {
+                //get position
                 Vector3 position = gridPositions[x];
-                if (liveCells[x])
+                //if cell in grid at position is dead then place obstacle
+                if (!liveCells[x])
                 {
+                    liveCount = liveCount + 1;
                     GameObject tileChoice = tileArray[Random.Range(0, tileArray.Length)];
                     Instantiate(tileChoice, position, Quaternion.identity);
                 }
+                else
+                {
+                    count = count + 1;
+                }
+                //gridPositions.RemoveAt(x);
+                //liveCells.RemoveAt(x);
             }
+            print("Final Count " + count);
+            print("Dead Count " + liveCount);
         }
 
 
         public void SetupScene(int level)
         {
+            //create floor
             BoardSetup();
+            //initialize grid and set to liveCells then set up gridpositions list
             InitializeList();
+            //add obstacles
             LayoutObject(obstacleTiles);
-            
-
         }
     }
 }
