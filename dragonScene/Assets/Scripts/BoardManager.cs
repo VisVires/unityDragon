@@ -8,17 +8,19 @@ namespace Completed
     public class BoardManager : MonoBehaviour
     {
        
-        public static int columns = 50;
+        public static int columns = 150;
         public static int rows = 50;
         int simulations = 7;
-        float chanceCellIsOnPath = 0.4f;
+        float chanceCellIsOnPath = 0.40f;
         public GameObject[] floorTiles;
         public GameObject[] obstacleTiles;
+        public GameObject[] wallObstacles;
 
         private Transform boardHolder;
         private List<Vector3> gridPositions = new List<Vector3>();
         private List<bool> liveCells = new List<bool>();
         private bool [,] gridPath = new bool[columns, rows];
+        
 
         //initializes game of life grid
         void InitializeGrid()
@@ -90,7 +92,8 @@ namespace Completed
                         //do nothing
                     }
                     // check if neighboring cell is off the map or at edge
-                    else if(x_neighbor < 0 || y_neighbor < 0 || x_neighbor >= columns - 1 || y_neighbor >= rows - 1){
+                    else if(x_neighbor < 0 || y_neighbor < 0 || x_neighbor >= columns || y_neighbor >= rows)
+                    {
                         liveNeighbors = liveNeighbors + 1;
                     }
                     //check if neighbor is alive
@@ -123,8 +126,8 @@ namespace Completed
                         {
                             newGrid[x, y] = false;
                         }
-                        //if cell has less than 4 live neighbors keep it alive
-                        else
+                        //if cell has less than 3 live neighbors keep it alive
+                        else //if (liveNeighbors < 4)
                         {
                             newGrid[x, y] = true;
                         }
@@ -149,39 +152,14 @@ namespace Completed
             return newGrid;
         }
 
-        /*
-        void OutputGridToConsole()
-        {
-            int count = 0;
-            for (int x = 1; x < columns; x++)
-            {
-                for (int y = 1; y < rows; y++)
-                {
-                    if (gridPath[x, y])
-                    {
-                        count = count + 1;
-                        //print(".  ");
-                    }
-                    else
-                    {
-                        //print("X  ");
-                    }
-                }
-                //print("\r\n");
-            }
-            print(count);
-        }
-        */
-
         //create game board list data structure and list of same size with values set to true or false based on game of life gird
         void InitializeList()
         {
-            GameOfLifeSim();
             gridPositions.Clear();
             int count = 0;
-            for (int x = 1; x < columns; x++)
+            for (int x = 0; x < columns; x++)
             {
-                for (int y = 1; y < rows; y++)
+                for (int y = 0; y < rows; y++)
                 {
                     //create grid position list of vector3 elements
                     gridPositions.Add(new Vector3(x, y, 0f));
@@ -205,19 +183,25 @@ namespace Completed
         {
             boardHolder = new GameObject("Board").transform;
 
-            for (int x = 1; x < columns; x++)
+            for (int x = -1; x < columns + 1; x++)
             {
-                for (int y = 1; y < rows; y++)
+                for (int y = -1; y < rows + 1; y++)
                 {
                     //set random floor tiles to gameObjects with parent being the board holder
                     GameObject toInstantiate = floorTiles[Random.Range(0, floorTiles.Length)];
+
+                    //create walls
+                    if (x == columns || y == 0 || y == rows)
+                    {
+                        toInstantiate = wallObstacles[Random.Range(0, wallObstacles.Length)];
+                    }
                     GameObject instance = Instantiate(toInstantiate, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
                     instance.transform.SetParent(boardHolder);
                 }
             }
         }
 
-        
+      
         //add random object to boardholder as obstacles
         void LayoutObject(GameObject[] tileArray)
         {
@@ -249,6 +233,8 @@ namespace Completed
 
         public void SetupScene(int level)
         {
+            //create grid 
+            GameOfLifeSim();
             //create floor
             BoardSetup();
             //initialize grid and set to liveCells then set up gridpositions list
