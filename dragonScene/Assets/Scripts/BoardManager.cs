@@ -191,7 +191,7 @@ namespace Completed
                     GameObject toInstantiate = floorTiles[Random.Range(0, floorTiles.Length)];
 
                     //create walls
-                    if (x == columns || y == 0 || y == rows)
+                    if (x == 0 || y == 0 || y == rows)
                     {
                         toInstantiate = wallObstacles[Random.Range(0, wallObstacles.Length)];
                     }
@@ -223,8 +223,6 @@ namespace Completed
                 {
                     count = count + 1;
                 }
-                //gridPositions.RemoveAt(x);
-                //liveCells.RemoveAt(x);
             }
             print("Final Count " + count);
             print("Dead Count " + liveCount);

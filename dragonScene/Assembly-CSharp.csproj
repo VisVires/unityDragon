@@ -45,16 +45,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\ninja.cs" />
-     <None Include="Assets\License.txt" />
- <Reference Include="UnityEngine.UI">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+     <Compile Include="Assets\Scripts\BoardManager.cs" />
+     <Compile Include="Assets\Scripts\GameManager.cs" />
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
- <Reference Include="UnityEngine.Analytics">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
