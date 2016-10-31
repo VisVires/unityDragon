@@ -1,7 +1,7 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2015
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dragonScene.CSharp", "dragonScene.CSharp.csproj", "{A22829F7-8937-B29C-1920-CA03D0087271}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{98EA4F24-9182-17C8-3164-6AB769F12052}") = "dragonScene", "Assembly-CSharp.csproj", "{93D06068-D8D2-4555-D6A7-3D65492119C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,12 +9,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A22829F7-8937-B29C-1920-CA03D0087271}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A22829F7-8937-B29C-1920-CA03D0087271}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A22829F7-8937-B29C-1920-CA03D0087271}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A22829F7-8937-B29C-1920-CA03D0087271}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93D06068-D8D2-4555-D6A7-3D65492119C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93D06068-D8D2-4555-D6A7-3D65492119C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93D06068-D8D2-4555-D6A7-3D65492119C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93D06068-D8D2-4555-D6A7-3D65492119C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
 	EndGlobalSection
 EndGlobal
