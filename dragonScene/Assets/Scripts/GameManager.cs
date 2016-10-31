@@ -10,7 +10,8 @@ namespace Completed
 
         public static GameManager instance = null;              //Static instance of GameManager which allows it to be accessed by any other script.
         private BoardManager boardScript;                       //Store a reference to our BoardManager which will set up the level.
-        private int level = 3;                                  //Current level number, expressed in game as "Day 1".
+        private int level = 1;                                  //Current level number, expressed in game as "Day 1".
+		private GameMaster gm = GetComponent<GameMaster>(); 
 
         //Awake is always called before any Start functions
         void Awake()
@@ -33,18 +34,27 @@ namespace Completed
             //Get a component reference to the attached BoardManager script
             boardScript = GetComponent<BoardManager>();
 
+
+
             //Call the InitGame function to initialize the first level 
             InitGame();
         }
 
         //Initializes the game for each level.
         void InitGame()
-        {
+        {	
+			//set score
+			gm.Start();		
+			//enemies.clear ();
             //Call the SetupScene function of the BoardManager script, pass it current level number.
             boardScript.SetupScene(level);
 
         }
 
+		void saveScore()
+		{
+			PlayerPrefs.SetInt ("Score", gameMaster.score);
+		}
 
 
         //Update is called every frame.
