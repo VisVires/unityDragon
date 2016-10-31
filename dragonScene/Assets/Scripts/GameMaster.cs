@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;        //so we can use lists
-
+/*
 public class GameMaster : MonoBehaviour {
 
 
@@ -57,3 +57,4 @@ public class GameMaster : MonoBehaviour {
 
 
 }
+*/

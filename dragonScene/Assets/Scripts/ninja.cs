@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/*
 public class ninja : Enemy {
 
 	public int weaponDamage;
@@ -30,3 +31,4 @@ public class ninja : Enemy {
 
 	}
 }
+*/
