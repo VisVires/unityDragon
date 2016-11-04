@@ -1,22 +1,23 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;        //so we can use lists
 using Random = UnityEngine.Random;      //Tells random to use unity random generator
 
 namespace Completed
 {
-    public class BoardManager : MonoBehaviour
+	public class BoardManager : Singleton<BoardManager>
     {
        
         public static int columns = 150;
         public static int rows = 50;
         int simulations = 7;
         float chanceCellIsOnPath = 0.40f;
-        public GameObject[] floorTiles;
-        public GameObject[] obstacleTiles;
-        public GameObject[] wallObstacles;
+        //public GameObject[] floorTiles;
+        //public GameObject[] obstacleTiles;
+        //public GameObject[] wallObstacles;
 
-        private Transform boardHolder;
+        //private Transform boardHolder;
         //private List<Vector3> gridPositions = new List<Vector3>();
         private List<Point> gridPositions = new List<Point>();
         private List<bool> liveCells = new List<bool>();
@@ -181,7 +182,7 @@ namespace Completed
         }
         void createTextFile()
         {
-            System.IO.StreamWriter file = new System.IO.StreamWriter("test.txt");
+            System.IO.StreamWriter file = new System.IO.StreamWriter("Level.txt");
             for (int x = 0; x < rows; x++)
             {
                 string rowx = "";
@@ -196,7 +197,7 @@ namespace Completed
                     else
                     {
 
-                        rowx = string.Concat(rowx + (Random.Range(0, floorTiles.Length)).ToString());
+                        rowx = string.Concat(rowx + (Random.Range(0, 3)).ToString());
                     }
                 }
                 rowx = string.Concat(rowx, "-");
@@ -204,12 +205,154 @@ namespace Completed
             }
             file.Close();
         }
+
+
+		//read text file
+		private string[] ReadLevelText()
+		{
+			//save data from file to binddata
+			TextAsset bindData = Resources.Load("Level") as TextAsset;
+			//replace newLine characters with an empty string
+			string data = bindData.text.Replace(Environment.NewLine, string.Empty);
+			//split the data into an array using the '-' delimiter
+			return data.Split('-');
+		}
         
+
+
+
+		//creat dictionary of TileScript each with the key coordinates 
+		public Dictionary<Point, TileScript> Tiles { get; set; }
+
+		//holds maximum x and y coordinates
+		private Point mapSize;
+
+		//Camera Movement Variable
+		[SerializeField]
+		private CameraMovement cameraMovement;
+
+		//create spawn portal object
+		//public Portal SpawnPortal { get; set; }
+
+		//coordinates for spawn point
+		//private Point spawn;
+		//coordinates fo end point
+		//private Point ending;
+		//add spawns object
+		//[SerializeField]
+		//private GameObject spawns;
+		//add ending object
+		//[SerializeField]
+		//private GameObject endings;
+		//Transform tool is map
+		[SerializeField]
+		private Transform map;
+
+		//prefabs of tiles for floor
+		[SerializeField]
+		private GameObject[] tilePrefabs;
+
+		//returns width of the box of a sprite
+		public float TileSize
+		{
+			get {return tilePrefabs[0].GetComponent<SpriteRenderer>().sprite.bounds.size.x; }
+		}
+
+
+		private void CreateLevel()
+		{
+			//create dictionary to hold map coordinates and TileScript
+			Tiles = new Dictionary<Point, TileScript>();
+
+			//read level from file to mapData array
+			string[] mapData = ReadLevelText();
+
+			//set map size to the size of the max x and y coordinates of the graph
+			mapSize = new Point(mapData[0].ToCharArray().Length, mapData.Length);
+
+			//set mapX (number of columns) by changing string to char array and taking length
+			int mapX = mapData[0].ToCharArray().Length;
+			//set mapY (number of rows) to length of mapData array
+			int mapY = mapData.Length;
+
+			//set maxtile to (0,0,0)
+			Vector3 maxTile = Vector3.zero;
+
+			//calculate start point, top left corner
+			Vector3 worldStart = Camera.main.ScreenToWorldPoint(new Vector3(0, Screen.height));
+
+			//for each row
+			for (int y = 0; y < mapY; y++)
+			{
+				//separate each row into individual characters
+				char[] newTiles = mapData[y].ToCharArray();
+
+				//for each column
+				for (int x = 0; x < mapX; x++)
+				{
+					//place tile on map
+					PlaceTile(newTiles[x].ToString(),x,y, worldStart);
+				}
+			}
+
+			//set maxTile to the tile at the bottom corner of the map
+			maxTile = Tiles[ new Point (mapX - 1, mapY - 1)].transform.position;
+
+			//set limit of camera movement to vector3 0,0,0 plus 
+			cameraMovement.SetLimits(new Vector3(maxTile.x + TileSize, maxTile.y - TileSize));
+
+			//Spawn();
+		}
+
+
+		//function to place tile on map
+		private void PlaceTile(string tileType, int x, int y, Vector3 worldStart)
+		{
+			//cast tile to tileIndex
+			int tileIndex = int.Parse(tileType);
+
+			//create new tile as tileIndex
+			TileScript newTile = Instantiate(tilePrefabs[tileIndex]).GetComponent<TileScript>();
+			Point next = new Point (x, y);
+			Vector3 worldSpot = new Vector3 ((worldStart.x + (TileSize * x)), (worldStart.y - (TileSize * y)),0);
+			//Vector3 worldSpot = new Vector3 (x,y,0f);
+
+			newTile.Setup (next, worldSpot, map);
+			//set position of tile at point x,y in the world at the vector3 position (worldstart + x, worldstart + y, 0), making the Transform map the parent
+			//newTile.Setup(new Point(x, y), new Vector3(worldStart.x + (TileSize*x), worldStart.y - (TileSize*y), 0), map);
+			//newTile.Setup(new Point(x, y), new Vector3(x, y, 0f), map);
+		}
+
+		/*//place spawn point on map
+		private void Spawn()
+		{
+			//set spawn point
+			spawn = new Point (1, 5);
+
+			//place spawn point sprite on map
+			GameObject tmp = (GameObject)Instantiate(spawns, Tiles[spawn].GetComponent<TileScript>().WorldPosition, Quaternion.identity);
+
+			//initialize portal
+			SpawnPortal = tmp.GetComponent<Portal>();
+			SpawnPortal.name = "teleporter-small_31";
+
+
+			//set ending spawn point
+			ending = new Point (15, 1);
+
+			//place ending spawn point on map
+			Instantiate(endings, Tiles[ending].GetComponent<TileScript>().WorldPosition, Quaternion.identity);
+		}*/
+
+
+
+
+
         //create floor of game board with random floor tiles
         void BoardSetup()
         {
             
-            boardHolder = new GameObject("Board").transform;
+            /*boardHolder = new GameObject("Board").transform;
             for (int x = -1; x <= columns + 1; x++)
             {
                 for (int y = -1; y <= rows + 1; y++)
@@ -232,7 +375,8 @@ namespace Completed
                     GameObject instance = Instantiate(toInstantiate, new Vector3(x, y, 0f), Quaternion.identity) as GameObject;
                     instance.transform.SetParent(boardHolder);
                 }
-           }
+           }*/
+			//CreateLevel ();
         }
 
       
@@ -267,18 +411,24 @@ namespace Completed
             print("Dead Count " + liveCount);
         }
 
+		void Start(){
+			createTextFile ();
+			CreateLevel ();
+		
+		}
 
-        public void SetupScene(int level)
+        /*public void SetupScene(int level)
         {
             //create grid 
             GameOfLifeSim();
             //create floor
             createTextFile();
-            BoardSetup();
+            //BoardSetup();
+			CreateLevel();
             //initialize grid and set to liveCells then set up gridpositions list
-            InitializeList();
+            //InitializeList();
             //add obstacles
-            LayoutObject(obstacleTiles);
-        }
+            //LayoutObject(obstacleTiles);
+        }*/
     }
 }
