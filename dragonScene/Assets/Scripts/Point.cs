@@ -26,4 +26,6 @@ public struct Point
 	{
 		return new Point(x.x - y.x, x.y - y.y);
 	}
+
+
 }
