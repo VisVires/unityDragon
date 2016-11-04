@@ -72,13 +72,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AStar.cs" />
     <Compile Include="Assets\Scripts\BoardManager.cs" />
     <Compile Include="Assets\Scripts\CameraMovement.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Node.cs" />
     <Compile Include="Assets\Scripts\Point.cs" />
     <Compile Include="Assets\Scripts\Portal.cs" />
     <Compile Include="Assets\Scripts\Singleton.cs" />
     <Compile Include="Assets\Scripts\TileScript.cs" />
+    <Compile Include="Assets\Scripts\layoutmanager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Resources\Level.txt" />
